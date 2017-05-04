@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Transaction</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
+
+    <script src="{{ url_for('static', filename='js/jquery.redirect.js') }}"></script>
+
+
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+
+        }
+    </style>
+
+    <script>
+        let form_amount = 1;
+        let current_forms = new Set(["single_form_0"]);
+        function add_form() {
+            if (current_forms.size <= 10) {
+                let values = $("#select_list_0").find(">option").map(function () {
+                    return $(this).val();
+                }).get();
+                let select_string = "";
+                $.each(values, function (index, value) {
+                    select_string += '<option value =' + value + '>' + value + '</option>';
+                });
+                let id = 'single_form_' + form_amount;
+                let html = '<div id=' + id + '>' +
+                    '<form class="form-inline">' +
+                    '<div class="form-group">' +
+                    '<label>Item:&nbsp</label>' +
+                    '<select class="selectpicker" id="select_list_' + form_amount + '">' + select_string + '</select>' +
+                    '</div>' +
+                    '<div class="form-group">' +
+                    '<label>&nbspAmount:&nbsp</label>' +
+                    '<input type="number" class="form-control" id="amount_' + form_amount + '" min="0" value = "0">' +
+                    '</div>' +
+                    '&nbsp<button class="btn btn-danger" type="button" id="less_button" onclick=less_form("' + id + '") > <span class="glyphicon glyphicon-minus-sign"></span> </button>' +
+                    '</form>' +
+                    '</div>';
+                let form = $("#forms").append(html);
+
+                //noinspection JSUnresolvedFunction
+                $('.selectpicker').selectpicker('refresh');
+                current_forms.add(id);
+                form_amount++;
+            }
+            else {
+                alert("Maximum amount of inputs is 10");
+            }
+
+        }
+
+        function less_form(id) {
+            current_forms.delete(id);
+            $('#' + id).remove();
+        }
+
+        function summit() {
+            let data = {};
+            let numbers = [];
+            let ver = true;
+
+
+            for (let item of current_forms) numbers.push(item.replace("single_form_", ""));
+
+            $.each(numbers, function (index, elem) {
+                let product_name = $('#' + "select_list_" + elem).val();
+                if (product_name in data) ver = false;
+                data[product_name] = $('#' + "amount_" + elem).val();
+            });
+
+            if (marker === null) alert("Position is not selected");
+            else if (ver) {
+                data['lat'] = marker.getPosition().lat();
+                data['lng'] = marker.getPosition().lng();
+                console.log(data);
+                $.redirect("/summit", data);
+            }
+            else {
+                alert("2 or more Inputs with same product");
+            }
+        }
+    </script>
+
+
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Test Page</a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+                <li><a href="/home">Home</a></li>
+                <li><a href="/stats">Stats</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/profile"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+                <li><a href="/logout"><span class="glyphicon glyphicon-log-in"></span> LogOut</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>Transaction</h1>
+    <div class="panel panel-default">
+        <div id="forms" class="panel-heading">
+            <div id="single_form_0">
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label>Item:</label>
+                        <select class="selectpicker" id="select_list_0">
+                            {% for option in data.options %}
+                                <option value={{ option }}>{{ option }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount:</label>
+                        <input type="number" class="form-control" id="amount_0" min="0" value="0">
+                    </div>
+                    <button class="btn btn-success" type="button" id="add_button" onclick="add_form()"><span
+                            class="glyphicon glyphicon-plus-sign"></span></button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="text-center" style="display: block">
+        <div id="map"></div>
+    </div>
+
+    <script>
+        var marker = null
+        function initMap() {
+            let uluru = {lat: -32.836287, lng: -70.654307};
+            let map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 11,
+                center: uluru
+            });
+            map.addListener('click', function (e) {
+                placeMarker(e.latLng, map);
+            });
+        }
+
+        function placeMarker(latLng, map) {
+            if (marker === null) {
+                marker = new google.maps.Marker({
+                    position: latLng,
+                    map: map,
+                    id: 'unique-marker'
+                });
+            }
+            else {
+                marker.setPosition(latLng)
+            }
+
+        }
+    </script>
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDFZg-UjSTaZ7H_mRYH6bSdoCacLTsppQU&callback=initMap">
+    </script>
+    <div class="text-center panel" style="padding-top: 5vh">
+        <button type="submit" onclick="summit()" class="btn btn-primary">Summit</button>
+    </div>
+
+</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Index</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    </head>
+<script>
+    function login(user, pass) {
+        if(user === "" || pass === ""){
+            $('#status_bar').text("Please enter a valid Username")
+        }
+        else {
+            $.post("login",data = {user : user, password : pass}, null, 'json')
+                .done(function (data) {
+                    if(data['success']){
+                        document.location.href = '/home'
+                    }
+                    else {
+                        $('#status_bar').text("Username or password is incorrect")
+                    }
+
+                })
+                .fail(function () {
+                    console.log("Error")
+                })
+        }
+
+        return false;
+    }
+</script>
+<body>
+<div class="container jumbotron text-center">
+    <div class="form-group ">
+        <label><b>Username</b></label>
+        <input type="text" placeholder="Enter Username" name="uname" required id="user" >
+    </div>
+
+    <div class="form-group ">
+        <label><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="psw" required id="pass" >
+    </div>
+
+    <label id="status_bar"></label>
+    <div>
+        <button type="submit" onclick="login($('#user').val(), $('#pass').val())" class="btn btn-primary">Login</button>
+    </div>
+
+  </div>
+</body>
+</html>

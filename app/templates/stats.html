@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stats</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+
+    <!-- Load c3.css -->jyyo965
+    <link href={{ url_for("static", filename = "css/c3.css") }} rel="stylesheet" type="text/css">
+
+    <!-- Load d3.js and c3.js -->
+    <script src={{ url_for("static", filename = "js/d3.v3.js") }} charset="utf-8"></script>
+    <script src={{ url_for("static", filename = "js/c3.min.js") }}></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css"/>
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Test Page</a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+                <li><a href="/home">Home</a></li>
+                <li class="active"><a href="/stats">Stats</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/profile"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+                <li><a href="/logout"><span class="glyphicon glyphicon-log-in"></span> LogOut</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="form-group">
+        <label for="datetimepicker1">Select Date</label>
+        <div class='input-group date' id='datetimepicker1'>
+            <input type='text' class="form-control"/>
+            <span class="input-group-addon">
+              <span class="glyphicon glyphicon-calendar"></span>
+      </span>
+        </div>
+    </div>
+</div>
+
+<div class="container" id="charts">
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4> Material Summary</h4></div>
+        <div class="panel-body">
+            <div class="row">
+                <div id="material_global_summary"></div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading"><h4> Last 6-Months Summary</h4></div>
+        <div class="panel-body">
+            <div class="row">
+                <div id="time_global_summary"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () {
+        $('#datetimepicker1').datetimepicker({
+            format: 'MM-YYYY',
+            useCurrent: false
+        });
+    });
+    var material_globabl_sum = c3.generate({
+        bindto: '#material_global_summary',
+        data: {
+            columns: {{ material_data|safe }},
+            type: 'donut'
+        },
+        donut: {
+            title: "Material"
+        }
+    });
+    var month_global_sum = c3.generate({
+        bindto: '#time_global_summary',
+        data: {
+            x: 'x',
+            xFormat: "%B - %Y",
+            columns: [
+                {{ time_data.x|safe }},
+                {{ time_data.data|safe }},
+                {{ time_data.data1|safe }}
+            ],
+            type: 'bar',
+            types: {
+                Total1: 'line'
+            }
+        },
+
+        axis: {
+            x: {
+                type: 'category' // this needed to load string x value
+            }
+        }
+    });
+
+</script>
+</body>
+</html>

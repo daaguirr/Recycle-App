@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Summit Summary</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+          integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous"></script>
+
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+
+        }
+    </style>
+
+</head>
+<body>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Test Page</a>
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+            <ul class="nav navbar-nav">
+                <li><a href="/home">Home</a></li>
+                <li><a href="#">Stats</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/stats"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+                <li><a href="/logout"><span class="glyphicon glyphicon-log-in"></span> LogOut</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+
+<div class="container">
+    {% if not data.success %}
+        <h1>Sorry</h1>
+        <h5>Your Transaction fails, try again later</h5>
+    {% else %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h1>Transaction Summary</h1>
+            </div>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Material</th>
+                    <th>Amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for name, amount in data.details %}
+                    <tr>
+                        <th scope="row">{{ name }}</th>
+                        <td>{{ amount }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+    <div class="text-center" style="display: block">
+        <div id="map"></div>
+    </div>
+
+    <script>
+        function initMap() {
+            let directionsService = new google.maps.DirectionsService;
+            let directionsDisplay = new google.maps.DirectionsRenderer;
+            let uluru = {lat: -32.836287, lng: -70.654307};
+            let map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 11,
+                center: uluru
+            });
+            directionsDisplay.setMap(map);
+            new google.maps.Marker({
+                position: {lat: {{ data.pos_in[0] }}, lng: {{ data.pos_in[1] }}},
+                map: map,
+                id: 'in',
+                title: 'A'
+            });
+            new google.maps.Marker({
+                position: {lat: {{ data.pos_out[0] }}, lng: {{ data.pos_out[1] }}},
+                map: map,
+                id: 'out',
+                title: 'B'
+            });
+            calculateAndDisplayRoute(directionsService, directionsDisplay);
+        }
+
+        function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+            directionsService.route({
+                origin: {lat: {{ data.pos_in[0] }}, lng: {{ data.pos_in[1] }}},
+                destination: {lat: {{ data.pos_out[0] }}, lng: {{ data.pos_out[1] }}},
+                travelMode: google.maps.TravelMode.DRIVING
+            }, function (response, status) {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    directionsDisplay.setDirections(response);
+                } else {
+                    window.alert('Directions request failed due to ' + status);
+                }
+            });
+        }
+
+    </script>
+    <script async defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDFZg-UjSTaZ7H_mRYH6bSdoCacLTsppQU&callback=initMap">
+    </script>
+    <div class="text-center panel" style="padding-top: 5vh">
+        <form action="\home">
+            <input type="submit" class="btn btn-primary" value="Main Page"/>
+        </form>
+    </div>
+
+
+</div>
+</body>
+</html>
